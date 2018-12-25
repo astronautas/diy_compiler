@@ -1,0 +1,66 @@
+class Cycles {
+    digitsCount(num: int) -> int {
+        if (num == 0) {
+            return 1;
+        }
+
+        int count = 0;
+
+        while (num != 0)
+        {
+            num = num / 10;
+            count = count + 1;
+        }
+
+        return count;
+    }
+
+    printDigits(num: int) -> int {
+        int count = Cycles.digitsCount(num);
+        int^ digits = int[count];
+
+        int curr = count - 1;
+
+        while (curr >= 0)
+        {
+            digits[curr] = num mod 10;
+            num = num / 10;
+            curr = curr - 1;
+        }
+
+        for (int i = 0 to count, 1) {
+            print digits[i] + 48;
+        }
+
+        return 0;
+    }
+
+    cycles() -> int {
+        int max = 12;
+
+        for (int i = 0 to max, 1) {
+            print "\n----\n";
+            print Cycles.printDigits(i);
+            print "\n----\n";
+
+            for (int z = 0 to max, 1) {
+                if (z == 5) {
+                    continue;
+                }
+
+                if (z == 10) {
+                   break;
+                }
+
+                print z + 48;
+                print "\n";
+            }
+        }
+
+        return 0;
+    }
+
+    main() -> int {
+        return Cycles.cycles();
+    }
+}

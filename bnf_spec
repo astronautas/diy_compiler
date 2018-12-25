@@ -1,0 +1,136 @@
+﻿// BNF for Sumatra Lang
+// Author: Lukas Valatka
+<program> ::= <class_declarations>
+
+// Symbols
+<double_quote> ::= """
+<single_quote> ::= "'"
+<underscore> ::= "_"
+<statement_separator> ::= ";"
+<l_curly_bracket> ::= "{"
+<r_curly_bracket> ::= "}"
+<l_bracket> ::= "("
+<r_bracket> ::= ")"
+<l_square_bracket> ::= "["
+<r_square_bracket> ::= "]"
+<or_symb> ::= OR
+<and_symb> ::= AND
+<add_op> ::= "+|-"
+<equality_symbol> ::= "!=" | "=="
+<comparison_symbol> ::= ">"|"<"|">="|"<="
+<assignment_op> ::= "="
+<break_symbol> ::= "break"
+<continue_symbol> ::= "continue"
+<return_symbol> ::= "return"
+<mult_op> ::= "*" | "/" | "div" | "mod"
+<sign> ::= <add_op>
+<digit> ::= "0".."9"
+<ascii_printable> ::= 32dec to 127dec in ASCII
+<letter> ::= "A".."Z" | "a".."z"
+<special_chars> ::= "\n" | "\t" | "#" | "!" | "\\" | <escaped_symbol>
+<escaped_symbol> ::= "\<double_quote>" | "\<single_quote>"
+
+// Declarations 
+<class_declarations> ::= <class_declaration> {<class_declaration>}
+<class_declaration> ::= class <identifier> <class_body>
+<class_body> ::= L_BRACES {<method_declaration> | <field_declaration>} R_BRACES
+<field_declaration> ::= <variable_declaration>
+<method_declarations> ::= <method_declaration> | <method_declarations> <method_declaration>
+<method_declaration> ::= <main_declaration> | <constructor_declaration>
+                        | <identifier> <params> "->" <type_keyword> <method_body>
+
+<main_declaration> ::= main <params><method_body>
+<constructor_declaration> ::= constructor <params><method_body>
+<method_body> ::= <block>
+<params> ::= L_BRACKET [<params_list>] R_BRACKET
+<params_list> ::= <single_param_decl> {COMMA <single_param_decl>}
+<single_param_decl> ::= <identifier><OP_COLON><type_keyword>
+
+// Blocks
+<block> ::= L_SQ_BRACKET {<block_element>} R_SQ_BRACKET
+<block_element> ::= <statement> | <if_block> | <loop_block>
+<loop_block> ::= <loop_header> <block>
+<if_block> ::= <if_block> ::= <if_header> <block> [<multiple_else>]
+
+// Statements
+<multiple_else> ::= <multiple_else_if> <else_block> | <else_block>
+<multiple_else_if> ::= <else_if_header> <block> 
+                    | <multiple_else_if> <else_if_header> <block>
+<else_block> ::= KW_ELSE <block>
+<if_header> ::= KW_IF L_PARANTH <expression> R_PARANTH
+<else_if_header> ::= "elseif" ( <expression> )
+<loop_header> ::= <while_header> | <for_header> | <foreach_header>
+<while_header> ::= "while" L_PARANTH <expression> R_PARANTH
+<for_header> ::= KW_FOR L_PARANTH <for_condition> R_PARANTH
+<for_condition> ::= <variable_declaration> KW_FOR_TO <expression> COMMA <for_step_condition>
+<for_step_condition> ::= <expression>
+<foreach_header> ::= KW_FOREACH L_PARANTH <variable> KW_FOREACH_IN <expression> R_PARANTH
+<statement> ::= <function_return> <statement_separator>
+                | <loop_skip> <statement_separator> 
+                | <variable_declaration> <statement_separator>
+                | <assignment> <statement_separator> 
+                | <expression> <statement_separator>
+                | <IO_op> <statement_separator>
+
+<variable_declaration> ::= <type_keyword> <variable> | <type_keyword> <variable> "=" <expression>
+<assignment> ::= <variable> "=" <expression>
+
+// Expressions
+<function_return> ::= <return_symbol> <expression> 
+                    | <return_symbol>
+
+<loop_skip> ::= KW_BREAK | KW_CONTINUE
+
+<expression> ::= <and_expression> {<or_symb> <and_expression> }
+<and_expression> ::=  <equality_exp> {OP_AND <equality_exp>}
+<equality_exp> ::= <compare_exp> {OP_EQUALITY <compare_exp>}
+<compare_exp> ::= <add_exp> {<comparison_symbol> <add_exp>}
+<add_exp> ::= <mult_exp> {OP_ADD <mult_exp>}
+<mult_exp> ::= <mult_exp><mult_op><unary> | <unary>
+<unary> ::= {!}<factor>
+<factor> ::= "(" <expression> ")" | <variable_exp> | <constant> | <class_init>
+
+// IO
+<IO_op> ::= <input> | <output>
+<output> ::= "print" <expression_list>
+<input> ::= "read" <variable_list>
+<variable_list> ::= <variable> | <variable_list>"," <variable>
+
+// Types
+<type_keyword> ::= <simple_type_keyword> | <array_keyword>
+<simple_type_keyword> ::= "bool" | "int" | "float" | "string"
+<array_keyword> ::= <type_keyword> L_SQ_BRACKET R_SQ_BRACKET
+<variable_exp> ::= <variable> | <function_call>
+(* <variable> ::= <identifier> | <identifier><l_bracket><expression><r_bracket> <- why was the other alternative used? *)
+<variable> ::= <identifier>
+<constant> ::= <bool_constant> | <numeric_constant> | <complex_constant>
+<complex_constant> ::= <array_constant> | LIT_STRING
+<array_constant> ::= <simple_type_keyword><l_square_bracket><expression><r_square_bracket> // e.g. int[50]
+
+<function_call> ::= <variable>"."<identifier><arguments> | <identifier><arguments> // there are system calls that do not belong to any class
+<arguments> ::= L_BRACKET [<expression_list>] R_BRACKET
+<expression_list> ::= <expression> {COMMA <expression>}
+<class_init> ::= OP_NEW <identifier><arguments>
+
+<identifier> ::= <letter> | <identifier><symbol>
+<symbol> ::= <digit> | <letter> | <underscore>
+
+<bool_constant> ::= "true" | "false"
+<numeric_constant> ::= <sign><integer> | <sign><float> | <integer> | <float>
+<numeric_integer_constant> ::= <sign><integer> | <integer>
+<integer> ::= <digits>
+<float> ::= <digits>"."<digits> | <digits>"."<digits><exponent>
+<exponent> ::= "e"<numeric_integer_constant> // e.g. e-12, e5
+<digits> ::= <digit><digits> | <digit>
+
+// Strings
+<string> ::= <double_quote><string_contents><double_quote>
+<string_op> ::= "+"
+<string_contents> ::= <string_contents><string_item> | <string_item>
+<string_item> ::= <letter> | <numeric_constant> | <special_char> | <ascii_printable>
+
+// Other
+<comment> ::= <comment_one_line> | <comment_multiple_lines>
+<comment_one_line> ::= "#"END // END marks newline ending
+<comment_multiple_lines> ::= "##"<text>"##"
+<text> ::= <symbol> | <text><symbol>

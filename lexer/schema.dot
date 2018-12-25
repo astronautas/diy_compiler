@@ -1,0 +1,45 @@
+digraph graphname {
+ MAIN -> LIT_INT [label="0..9"];
+ MAIN -> 1 [label="i"]
+ MAIN -> ID [label="otherLetter; _"]
+ MAIN -> WHITESPACE [label="(whitespace)"]
+ MAIN -> NEWLINE [label="(newline)"]
+ MAIN -> COMMENT_1_1 [label="#"]
+
+ COMMENT_1_1 -> MAIN [label="(newline)"]
+ COMMENT_1_1 -> COMMENT_1 [label="other"]
+ COMMENT_1_1 -> COMMENT_MULT [label="#"]
+
+ COMMENT_1 -> MAIN [label="(newline)"]
+ COMMENT_1 -> COMMENT_1 [label="other"]
+
+ COMMENT_MULT -> COMMENT_MULT [label="other"]
+ COMMENT_MULT -> COMMENT_MULT_2 [label="#"]
+
+ COMMENT_MULT_2 -> COMMENT_MULT [label="other"]
+ COMMENT_MULT_2 -> MAIN [label="#"]
+
+ WHITESPACE -> MAIN
+
+ NEWLINE -> MAIN
+
+ ID -> ID [label="letter, digit, _"];
+ ID -> ID_OUT [label="other"];
+
+ 1 -> 2 [label="f"]
+ 1 -> 4 [label="n"]
+ 1 -> ID [label="otherLetterDig; _"]
+
+ 2 -> KW_IF_OUT [label="other"]
+ 2 -> ID [label="otherLetterDig; _"];
+
+ 4 -> 5 [label="t"]
+ 4 -> ID [label="otherLetterDig; _"]
+
+ 5 -> KW_INT_OUT [label="other"]
+ 5 -> ID [label="letter, digit"]
+
+ LIT_INT -> LIT_INT [label="0..9"];
+ LIT_INT -> ERROR [label="a..z"]
+ LIT_INT -> LIT_INT_OUT [label="other"]
+}

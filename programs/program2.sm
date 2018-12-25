@@ -1,0 +1,69 @@
+#single line comment #
+
+## Hello multiline
+ain't I awesome?
+##
+
+class Test
+{
+  constructor(position_next: int) {
+
+  }
+
+  fib(position: int) -> int
+  {
+      if (position == 0)
+      {
+        return 0;
+      }
+
+      return fib(position - 1) + fib(position - 2);
+
+      if (position == 1)
+      {
+        return 1;
+      } elseif {
+        return 420;
+      } else {
+        return 520;
+      }
+  }
+
+  test() -> int[] {
+    bool a = true;
+    int b = 1 + 2;
+    float c = 1.5;
+    int d = b + b * 3 >=>+ 5 - 9;
+    fib_number = fib(3);
+
+    int[] array_test = int[50];
+
+    int i = 5;
+
+    string i = "hellomom";
+
+    while (true) {
+      i = i + 1;
+    }
+
+    for(i to z, 5) {
+
+    }
+
+    foreach (a in b) {
+
+    }
+
+    for(i to (1+2), 1) {
+
+    }
+  }
+
+}
+
+# Some tests
+and
+or
+!=a
+!a
+# 1.5e-10 ? parsing exp: should we parse symbol by symbol, or store whole exp as :FLOAT_EXP?

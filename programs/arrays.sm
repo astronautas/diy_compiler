@@ -1,0 +1,12 @@
+class Primes {
+    delay(config: int^[5][4]) -> float {
+        return 0.0;
+    }
+
+    main() -> int {
+        float^[5][4] tetrisConfig = int[5][4];
+
+        print Primes.delay(tetrisConfig);
+        return 0;
+    }
+}

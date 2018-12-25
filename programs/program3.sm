@@ -1,0 +1,80 @@
+#single line comment #
+
+## Hello multiline
+ain't I awesome?
+##
+
+class B {
+    int i = 5;
+}
+
+class Test
+{
+  int gaga = 5;
+  int i = 5;
+
+  constructor(position_next: int) {
+    int gaga = 5;
+  }
+
+  fib(position: int) -> int
+  {
+      if (position == 0)
+      {
+        return 0;
+      }
+
+      return fib(position - 1) + fib(position - 2);
+
+      if (position == 1)
+      {
+        return 1;
+      } elseif (i == 5) {
+        return 420;
+      } else {
+        return 520;
+      }
+  }
+
+  test() -> int[] {
+
+    if (true) {
+        int fib_number = 5;
+    }
+
+    int fib_number = 6;
+
+    bool a = true;
+    int b = 1 + 2;
+    float c = 1.5;
+    int d = b;
+    fib_number = fib(3);
+
+    int[] array_test = int[50];
+
+    i = 5;
+   
+    string z = "hey";
+
+    string i = "hellomom";
+
+    while (true) {
+      i = i + 1;
+    }
+
+    for(int i = 5 to z, 5) {
+
+    }
+
+    foreach (a in b) {
+        int gg = 2020;
+        gg = 5;
+        print gg;
+    }
+
+    for(int i = 5 to (1+2), 1) {
+
+    }
+  }
+
+}

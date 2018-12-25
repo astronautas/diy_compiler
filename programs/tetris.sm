@@ -1,0 +1,385 @@
+class Tetris {
+    # IO
+    toScreen(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4]) -> int {
+        #clearvram;
+
+        # Display world
+        for (int x = 0 to 20, 1) {
+            for (int y = 0 to 20, 1) {
+                printvram x, y, tetrisWorld[x][y];
+            }
+        }
+
+        # Display current block
+        for (int x = 0 to 3, 1) {
+            for (int y = 0 to 3, 1) {
+                if (tetrisBlock[x][y] != 0) {
+                    printvram tetrisConfig[1] + x, tetrisConfig[2] + y, tetrisBlock[x][y];
+                }
+            }
+        }
+
+        flushvram;
+
+        # Display GUI
+        return 0;
+    }
+
+    hit(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4]) -> bool {
+        int gridSize = 20;
+
+        int cornerX = tetrisConfig[1];
+        int cornerY = tetrisConfig[2];
+
+        # Out of arena bounds
+        for (int blockX = 0 to 3, 1) {
+            for (int blockY = 0 to 3, 1) {
+                if ((tetrisBlock[blockX][blockY] != 0 AND (blockX + cornerX < 0 OR blockY + cornerY < 0))) {
+                    return true;
+                }
+
+                if (tetrisBlock[blockX][blockY] != 0 AND (blockX + cornerX > gridSize - 1 OR blockY + cornerY > gridSize - 1)) {
+                    return true;
+                }
+            }
+        }
+
+        # Other block hitting check
+        for (int x = tetrisConfig[1] to tetrisConfig[1] + 3, 1) {
+            for (int y = tetrisConfig[2] to tetrisConfig[2] + 3, 1) {
+                int xBlock = x - tetrisConfig[1];
+                int yBlock = y - tetrisConfig[2];
+
+                if (tetrisWorld[x][y] != 0 AND tetrisBlock[xBlock][yBlock] != 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    move(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4], direction: int) -> int {
+        if (direction == 0) {
+            tetrisConfig[1] = tetrisConfig[1] - 1;
+
+            if (Tetris.hit(tetrisBlock, tetrisWorld, tetrisConfig)) {
+                tetrisConfig[1] = tetrisConfig[1] + 1;
+            }
+        } else {
+            tetrisConfig[1] = tetrisConfig[1] + 1;
+
+            if (Tetris.hit(tetrisBlock, tetrisWorld, tetrisConfig)) {
+                tetrisConfig[1] = tetrisConfig[1] - 1;
+            }
+        }
+
+        return 0;
+    }
+
+    saveBlock(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4]) -> int {
+
+        for (int x = tetrisConfig[1] to tetrisConfig[1] + 3, 1) {
+            for (int y = tetrisConfig[2] to tetrisConfig[2] + 3, 1) {
+                int xBlock = x - tetrisConfig[1];
+                int yBlock = y - tetrisConfig[2];
+
+                if (tetrisBlock[xBlock][yBlock] != 0) {
+                    tetrisWorld[x][y] = tetrisBlock[xBlock][yBlock];
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    spawnBlock(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4]) -> int {
+        int^[6][3][3] figures = int[6][3][3];
+
+        # http://tetris.wikia.com/wiki/Tetromino
+        # Stick
+        figures[0][0][0] = 0;
+        figures[0][1][0] = 0;
+        figures[0][2][0] = 0;
+        figures[0][0][1] = 4;
+        figures[0][1][1] = 4;
+        figures[0][2][1] = 4;
+        figures[0][0][2] = 0;
+        figures[0][1][2] = 0;
+        figures[0][2][2] = 0;
+
+        # Square
+        figures[1][0][0] = 3;
+        figures[1][1][0] = 3;
+        figures[1][2][0] = 0;
+        figures[1][0][1] = 3;
+        figures[1][1][1] = 3;
+        figures[1][2][1] = 0;
+        figures[1][0][2] = 0;
+        figures[1][1][2] = 0;
+        figures[1][2][2] = 0;
+
+        # Green zigzag S
+        figures[2][0][0] = 0;
+        figures[2][1][0] = 2;
+        figures[2][2][0] = 2;
+        figures[2][0][1] = 2;
+        figures[2][1][1] = 2;
+        figures[2][2][1] = 0;
+        figures[2][0][2] = 0;
+        figures[2][1][2] = 0;
+        figures[2][2][2] = 0;
+
+        # R
+        figures[3][0][0] = 5;
+        figures[3][1][0] = 0;
+        figures[3][2][0] = 0;
+        figures[3][0][1] = 5;
+        figures[3][1][1] = 5;
+        figures[3][2][1] = 5;
+        figures[3][0][2] = 0;
+        figures[3][1][2] = 0;
+        figures[3][2][2] = 0;
+
+        # L
+        figures[3][0][0] = 0;
+        figures[3][1][0] = 0;
+        figures[3][2][0] = 6;
+        figures[3][0][1] = 6;
+        figures[3][1][1] = 6;
+        figures[3][2][1] = 6;
+        figures[3][0][2] = 0;
+        figures[3][1][2] = 0;
+        figures[3][2][2] = 0;
+
+        # T
+        figures[4][0][0] = 0;
+        figures[4][1][0] = 7;
+        figures[4][2][0] = 0;
+        figures[4][0][1] = 7;
+        figures[4][1][1] = 7;
+        figures[4][2][1] = 7;
+        figures[4][0][2] = 0;
+        figures[4][1][2] = 0;
+        figures[4][2][2] = 0;
+
+        # Z
+        figures[5][0][0] = 8;
+        figures[5][1][0] = 8;
+        figures[5][2][0] = 0;
+        figures[5][0][1] = 0;
+        figures[5][1][1] = 8;
+        figures[5][2][1] = 8;
+        figures[5][0][2] = 0;
+        figures[5][1][2] = 0;
+        figures[5][2][2] = 0;
+
+        int randFig = 0;
+        rand randFig, 0, 5;
+
+        int randX = 0;
+        rand randX, 0, 19 - 2;
+
+        tetrisConfig[1] = randX;
+        tetrisConfig[2] = 0;
+
+        tetrisBlock[0][0] = figures[randFig][0][0];
+        tetrisBlock[0][1] = figures[randFig][0][1];
+        tetrisBlock[0][2] = figures[randFig][0][2];
+        tetrisBlock[1][0] = figures[randFig][1][0];
+        tetrisBlock[1][1] = figures[randFig][1][1];
+        tetrisBlock[1][2] = figures[randFig][1][2];
+        tetrisBlock[2][0] = figures[randFig][2][0];
+        tetrisBlock[2][1] = figures[randFig][2][1];
+        tetrisBlock[2][2] = figures[randFig][2][2];
+
+        if (Tetris.hit(tetrisBlock, tetrisWorld, tetrisConfig)) {
+            tetrisConfig[0] = 1; # gameover
+            return 0;
+        }
+
+        return 0;
+    }
+
+    gravity(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4]) -> int {
+        tetrisConfig[2] = tetrisConfig[2] + 1;
+
+        if (Tetris.hit(tetrisBlock, tetrisWorld, tetrisConfig)) {
+            tetrisConfig[2] = tetrisConfig[2] - 1;
+
+            # Save curr block, Spawn new block
+            Tetris.saveBlock(tetrisBlock, tetrisWorld, tetrisConfig);
+            Tetris.spawnBlock(tetrisBlock, tetrisWorld, tetrisConfig);
+        }
+
+        return 0;
+    }
+
+    rotate(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4]) -> int {
+        int^[3][3] oldBlock = int[3][3];
+
+        oldBlock[0][0] = tetrisBlock[0][0];
+        oldBlock[0][1] = tetrisBlock[0][1];
+        oldBlock[0][2] = tetrisBlock[0][2];
+        oldBlock[1][0] = tetrisBlock[1][0];
+        oldBlock[1][1] = tetrisBlock[1][1];
+        oldBlock[1][2] = tetrisBlock[1][2];
+        oldBlock[2][0] = tetrisBlock[2][0];
+        oldBlock[2][1] = tetrisBlock[2][1];
+        oldBlock[2][2] = tetrisBlock[2][2];
+
+        # Do rotation around center point
+        for (int x = 0 to 3, 1) {
+            for (int y = 0 to 3, 1) {
+                int yRot = 3 - y - 1;
+                tetrisBlock[x][y] = oldBlock[yRot][x];
+            }
+        }
+
+        if (Tetris.hit(tetrisBlock, tetrisWorld, tetrisConfig)) {
+            tetrisBlock[0][0] = oldBlock[0][0];
+            tetrisBlock[0][1] = oldBlock[0][1];
+            tetrisBlock[0][2] = oldBlock[0][2];
+            tetrisBlock[1][0] = oldBlock[1][0];
+            tetrisBlock[1][1] = oldBlock[1][1];
+            tetrisBlock[1][2] = oldBlock[1][2];
+            tetrisBlock[2][0] = oldBlock[2][0];
+            tetrisBlock[2][1] = oldBlock[2][1];
+            tetrisBlock[2][2] = oldBlock[2][2];
+        }
+
+        return 0;
+    }
+
+    fall(tetrisWorld: int^[20][20], lineToFallY: int) -> int {
+        for (int x = 0 to 20, 1) {
+            for (int y = lineToFallY to 1, -1) {
+                int fallY = y - 1;
+                tetrisWorld[x][y] = tetrisWorld[x][fallY];
+            }
+        }
+
+        # first line become blank, as there's no line above to fill it
+        for (int x = 0 to 20, 1) {
+            tetrisWorld[x][0] = 0;
+        }
+
+        return 0;
+    }
+
+    checkLines(tetrisBlock: int^[3][3], tetrisWorld: int^[20][20], tetrisConfig: int^[4]) -> int {
+        int^[5] pointsForLines = int[5];
+        pointsForLines[0] = 0;
+        pointsForLines[1] = 40;
+        pointsForLines[2] = 100;
+        pointsForLines[3] = 300;
+        pointsForLines[4] = 1200;
+
+        int linesCleared = 0;
+
+        for (int y = 20 to 0, -1) {
+            bool wholeLine = true;
+
+            for (int x = 0 to 20, 1) {
+                if (tetrisWorld[x][y] == 0) {
+                    wholeLine = false;
+                    break;
+                }
+            }
+
+            if (wholeLine) {
+                linesCleared = linesCleared + 1;
+                tetrisConfig[3] = tetrisConfig[3] + pointsForLines[linesCleared];
+
+                Tetris.fall(tetrisWorld, y);
+            }
+        }
+
+        return 0;
+    }
+
+    delay(config: int^[4]) -> int {
+        if (config[3] < 40) {
+            sleep 0.01;
+        } elseif (config[3] < 100) {
+            sleep 0.008;
+        } elseif (config[3] < 200) {
+            sleep 0.004;
+        }
+
+        return 0;
+    }
+
+    main() -> int {
+        int worldSize = 20;
+
+        int GAMEOVER = 0;
+        int CURRX = 1;
+        int CURRY = 2;
+        int SCORE = 3;
+
+        int count = 0;
+        bool gameover = false;
+        float sleeptime = 0.02; # seconds
+        int key = 0;
+
+        int^[20][20] tetrisWorld = int[20][20];
+        int^[3][3] tetrisBlock = int[3][3];
+        int^[4] tetrisConfig = int[4];
+
+        Tetris.spawnBlock(tetrisBlock, tetrisWorld, tetrisConfig);
+
+        # Setup config
+        tetrisConfig[CURRX] = 0;
+        tetrisConfig[CURRY] = 0;
+        tetrisConfig[SCORE] = 0;
+
+        for (int x = 0 to worldSize, 1) {
+            for (int y = 0 to worldSize, 1) {
+                tetrisWorld[x][y] = 0;
+            }
+        }
+
+        tetrisConfig[GAMEOVER] = 0;
+
+        #Tetris.newBlock(tetrisBlock, tetrisWorld, tetrisConfig);
+
+        # Game Loop
+
+        while (tetrisConfig[GAMEOVER] == 0) {
+            #print "[LOG] Game iteration \n";
+            count = count + 1;
+            Tetris.toScreen(tetrisBlock, tetrisWorld, tetrisConfig);
+
+            if (count mod 10 == 0) {
+                Tetris.gravity(tetrisBlock, tetrisWorld, tetrisConfig);
+                Tetris.checkLines(tetrisBlock, tetrisWorld, tetrisConfig);
+            }
+
+            if (count mod 50 == 0) {
+                print "SCORE: ";
+                print tetrisConfig[3];
+                print "\n";
+           }
+
+            read key;
+
+            if (key == 32) {
+                Tetris.gravity(tetrisBlock, tetrisWorld, tetrisConfig);
+                Tetris.checkLines(tetrisBlock, tetrisWorld, tetrisConfig);
+            } elseif (key == 97) {
+                Tetris.move(tetrisBlock, tetrisWorld, tetrisConfig, 0);
+            } elseif (key == 100) {
+                Tetris.move(tetrisBlock, tetrisWorld, tetrisConfig, 1);
+            } elseif (key == 113) {
+                Tetris.rotate(tetrisBlock, tetrisWorld, tetrisConfig);
+            }
+
+            Tetris.delay(tetrisConfig);
+        }
+
+        print "GAMEOVER";
+
+        return 0;
+    }
+}

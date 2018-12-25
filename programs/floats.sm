@@ -1,0 +1,15 @@
+class Floats {
+    main() -> int {
+        float b = 45.45 + 55.55;
+        float c = 48.48;
+        float h = 5.9 - 5.95;
+
+        print b;
+        print "\n";
+        print c;
+        print "\n";
+        print h;
+
+        return 0;
+    }
+}
