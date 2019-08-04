@@ -1,3 +1,0 @@
-class Test {
-    int b = a == !!b OR c == d;
-}

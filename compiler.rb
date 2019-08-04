@@ -29,54 +29,53 @@ end
 
 raise Exception.new("Please specify input filename as cmd arg(0)") if ARGV.nil? || ARGV.empty?
 
-# MAKE SOURCE
-source = IO.read(ARGV[0])
+def compile(source_file_path)
+  # MAKE SOURCE
+  source = IO.read(source_file_path)
 
-# PREPROCESS MACROS
+  # PREPROCESS MACROS
 
-# GENERATE LEXEMES
-lexer = Lexer.new(source, LexerConfig[:STARTING_STATE],
-                  LexerConfig[:IGNORED_STATES], LexerConfig[:KEYWORDS], ARGV[0],
-                  LexerConfig[:ERROR_FALLBACK_STATES])
+  # GENERATE LEXEMES
+  lexer = Lexer.new(source, LexerConfig[:STARTING_STATE],
+                    LexerConfig[:IGNORED_STATES], LexerConfig[:KEYWORDS], ARGV[0],
+                    LexerConfig[:ERROR_FALLBACK_STATES])
 
-lexems = []
-loop do
-  lexem = lexer.get_lexem
-  lexems << lexem
+  lexems = []
+  loop do
+    lexem = lexer.get_lexem
+    lexems << lexem
 
-  break if lexem.type.name == :EOF
-end
+    break if lexem.type.name == :EOF
+  end
 
-# Parsing
-parser = Parser.new(lexems, ARGV[0])
-program = parser.parse_all
+  # Parsing
+  parser = Parser.new(lexems, ARGV[0])
+  program = parser.parse_all
 
-#printer = ASTPrinter.new
-#program.print(printer)
+  #printer = ASTPrinter.new
+  #program.print(printer)
 
-# Name resolution
-scope = Scope.new
-program.resolve_names(scope)
+  # Name resolution
+  scope = Scope.new
+  program.resolve_names(scope)
 
-# Type checking
-program.check_types
+  # Type checking
+  program.check_types
 
-# Misc structure validations
-checker = StructureValidator.new
-#checker.validate_main($main)
-checker.validate_methods(parser.methods)
-#checker.add_default_returns(parser.methods)
-checker.validate_loop_skips(parser.loop_skips)
+  # Misc structure validations
+  checker = StructureValidator.new
+  #checker.validate_main($main)
+  checker.validate_methods(parser.methods)
+  #checker.add_default_returns(parser.methods)
+  checker.validate_loop_skips(parser.loop_skips)
 
-# Generate OP-code
-if $semantic_errors == 0
-  writer = CodeWriter.new
-  program.gen_code(writer)
-
-  writer.finalize_registers
-
-  writer.dump
-
-  vm = VM.new(writer.code)
-  vm.exec
+  # Generate OP-code
+  if $semantic_errors == 0
+    writer = CodeWriter.new
+    program.gen_code(writer)
+    writer.finalize_registers
+    writer.code
+  else
+    false
+  end
 end

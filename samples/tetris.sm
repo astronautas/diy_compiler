@@ -19,7 +19,7 @@ class Tetris {
             }
         }
 
-        flushvram;
+                    flushvram;
 
         # Display GUI
         return 0;
